@@ -2,13 +2,8 @@ import { Role } from "@prisma/client";
 
 const permissions = {
   [Role.GUEST]: ["viewPublicContent"],
-  [Role.USER]: ["viewUserContent", "editUserProfile", "createPost"],
-  [Role.ADMINISTRATOR]: [
-    "viewAdminContent",
-    "manageUsers",
-    "deletePost",
-    "editAnyProfile",
-  ],
+  [Role.USER]: ["viewWelcomeMessage", "editUserProfile"],
+  [Role.ADMINISTRATOR]: ["viewDashboard", "manageUsers"],
 };
 
 export const isAuthorized = (userRole: Role, requiredPermissions: string[]) => {

@@ -1,27 +1,25 @@
 import { NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
 import { cookies } from "next/headers";
+import { handleError } from "@/lib/errorHandler";
 
 export async function GET() {
   try {
     const token = cookies().get("accessToken")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "No token found" }, { status: 401 });
+      throw new Error("No token found");
     }
 
     const user = await verifyJWT(token);
 
-    if (user) {
-      return NextResponse.json(user);
-    } else {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!user) {
+      throw new Error("Invalid token");
     }
+
+    return NextResponse.json(user);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const { message, statusCode } = handleError(error);
+    return NextResponse.json({ error: message }, { status: statusCode });
   }
 }

@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import { signJWT } from "@/lib/jwt";
 import { z } from "zod";
+import { handleError } from "@/lib/errorHandler";
 
 const prisma = new PrismaClient();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 400 });
+      throw new Error("Invalid token");
     }
 
     let user = await prisma.user.findUnique({
@@ -71,10 +72,7 @@ export async function POST(req: Request) {
     });
     return response;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const { message, statusCode } = handleError(error);
+    return NextResponse.json({ error: message }, { status: statusCode });
   }
 }

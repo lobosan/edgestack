@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { signJWT } from "@/lib/jwt";
 import bcrypt from "bcrypt";
+import { handleError } from "@/lib/errorHandler";
 
 const prisma = new PrismaClient();
 
@@ -19,10 +20,7 @@ export async function POST(req: Request) {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
-      );
+      throw new Error("User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,24 +28,39 @@ export async function POST(req: Request) {
       data: { email, password: hashedPassword, name, role: "USER" },
     });
 
-    const token = await signJWT({
+    const accessToken = await signJWT({
       id: user.id,
       email: user.email,
-      role: user.role,
       name: user.name,
+      role: user.role,
     });
-    return NextResponse.json({ token });
-  } catch (error) {
-    console.error("Signup error:", error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Validation error", details: error.errors },
-        { status: 400 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+
+    const refreshToken = await signJWT(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      true
     );
+
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60, // 15 minutes
+    });
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+    return response;
+  } catch (error) {
+    const { message, statusCode } = handleError(error);
+    return NextResponse.json({ error: message }, { status: statusCode });
   }
 }
