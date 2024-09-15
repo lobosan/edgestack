@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
+    <nav className="sticky top-0 z-50 bg-gray-800 text-white h-16">
+      <div className="container mx-auto flex justify-between items-center h-full px-4">
         <Link href="/" className="text-xl font-bold">
           My App
         </Link>
         <div className="space-x-4">
+          <ThemeToggle />
           {user && user.role === "ADMINISTRATOR" && (
             <Link href="/dashboard">Dashboard</Link>
           )}

@@ -4,7 +4,7 @@ import { WelcomeMessage } from "@/components/WelcomeMessage";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+    <div className="flex flex-col items-center justify-center p-8 text-center">
       <main className="max-w-3xl">
         <WelcomeMessage />
         <h1 className="text-4xl font-bold mb-4">Welcome to EdgeStack</h1>

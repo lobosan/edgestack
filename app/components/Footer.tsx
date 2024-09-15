@@ -1,8 +1,9 @@
 export function Footer() {
   return (
-    <footer className="bg-gray-800 text-white p-4 mt-8">
+    <footer className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-10 mt-8">
       <div className="container mx-auto text-center">
-        <p>&copy; 2023 My App. All rights reserved.</p>
+        <p>Powered by EdgeStack</p>
+        <p>MIT License - {new Date().getFullYear()}</p>
       </div>
     </footer>
   );
