@@ -11,9 +11,10 @@ export function useAuth() {
         credentials: "include",
       });
       if (!response.ok) throw new Error("Verification failed");
-      return response.json();
+      const data = await response.json();
+      return data.user;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
 
@@ -30,7 +31,6 @@ export function useAuth() {
     onSuccess: () => {
       queryClient.setQueryData(["auth"], null);
       queryClient.clear();
-      // Force a hard reload to clear all client-side state
       window.location.href = "/";
     },
   });
@@ -38,6 +38,7 @@ export function useAuth() {
   return {
     user,
     isLoading,
+    isLoggedIn: !!user,
     logout: logoutMutation.mutate,
   };
 }

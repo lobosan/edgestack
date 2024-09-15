@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, isLoggedIn, logout } = useAuth();
 
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-md">
@@ -21,10 +21,10 @@ export function Navbar() {
           </div>
           <div className="flex items-center">
             <ThemeToggle />
-            {user ? (
+            {isLoggedIn ? (
               <>
                 <span className="text-gray-800 dark:text-white mx-4">
-                  {user.name || user.email}
+                  {user?.name || user?.email}
                 </span>
                 <button
                   onClick={() => logout()}
