@@ -39,13 +39,37 @@ export async function POST(req: Request) {
       });
     }
 
-    const jwtToken = await signJWT({
+    const accessToken = await signJWT({
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
     });
-    return NextResponse.json({ token: jwtToken });
+
+    const refreshToken = await signJWT(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      true
+    );
+
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60, // 15 minutes
+    });
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json(

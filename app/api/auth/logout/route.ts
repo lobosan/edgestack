@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST() {
-  // For JWT-based authentication, we don't need to do anything server-side
-  // The client should remove the token from local storage
-  return NextResponse.json({ message: "Logged out successfully" });
+  const response = NextResponse.json({ message: "Logged out successfully" });
+
+  // Clear the cookies
+  cookies().delete("accessToken");
+  cookies().delete("refreshToken");
+
+  return response;
 }

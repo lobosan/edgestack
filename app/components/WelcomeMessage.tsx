@@ -1,9 +1,9 @@
 import { useAuth } from "@/hooks/useAuth";
 
 export function WelcomeMessage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
 
-  if (loading) return null;
+  if (isLoading) return null;
   if (!user) return null;
 
   return (

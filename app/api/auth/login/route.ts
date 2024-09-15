@@ -27,13 +27,37 @@ export async function POST(req: Request) {
       throw new AppError(401, "Invalid email or password");
     }
 
-    const token = await signJWT({
+    const accessToken = await signJWT({
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
     });
-    return NextResponse.json({ token });
+
+    const refreshToken = await signJWT(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      true
+    );
+
+    const response = NextResponse.json({ success: true });
+    response.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60, // 15 minutes
+    });
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+    return response;
   } catch (error) {
     const { message, statusCode } = handleError(error);
     return NextResponse.json({ error: message }, { status: statusCode });

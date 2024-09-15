@@ -8,27 +8,48 @@ export function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="sticky top-0 z-50 bg-gray-800 text-white h-16">
-      <div className="container mx-auto flex justify-between items-center h-full px-4">
-        <Link href="/" className="text-xl font-bold">
-          My App
-        </Link>
-        <div className="space-x-4">
-          <ThemeToggle />
-          {user && user.role === "ADMINISTRATOR" && (
-            <Link href="/dashboard">Dashboard</Link>
-          )}
-          {user ? (
-            <>
-              <span>{user.name || user.email}</span>
-              <button onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login">Login</Link>
-              <Link href="/signup">Sign Up</Link>
-            </>
-          )}
+    <nav className="bg-white dark:bg-gray-800 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="text-gray-800 dark:text-white text-lg font-semibold"
+            >
+              EdgeStack
+            </Link>
+          </div>
+          <div className="flex items-center">
+            <ThemeToggle />
+            {user ? (
+              <>
+                <span className="text-gray-800 dark:text-white mx-4">
+                  {user.name || user.email}
+                </span>
+                <button
+                  onClick={() => logout()}
+                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-400 mx-4"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </nav>

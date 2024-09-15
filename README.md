@@ -13,7 +13,6 @@ This is a full-stack boilerplate application built with Next.js, featuring custo
 - Role-based access control
 - ShadCN UI components
 - Global error handling
-- Testing setup with Jest and React Testing Library
 - Environment variable validation
 
 ## Getting Started
@@ -28,7 +27,6 @@ This is a full-stack boilerplate application built with Next.js, featuring custo
 - `npm run dev`: Start the development server
 - `npm run build`: Build the application for production
 - `npm start`: Start the production server
-- `npm test`: Run tests
 
 ## Deployment
 

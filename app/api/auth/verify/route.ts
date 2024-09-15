@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { verifyJWT } from "@/lib/jwt";
+import { cookies } from "next/headers";
 
-export async function POST(req: Request) {
+export async function GET() {
   try {
-    const { token } = await req.json();
+    const token = cookies().get("accessToken")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "No token found" }, { status: 401 });
+    }
+
     const user = await verifyJWT(token);
 
     if (user) {

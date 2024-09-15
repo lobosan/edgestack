@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 export function SignupForm() {
@@ -9,36 +9,45 @@ export function SignupForm() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    try {
+  const signupMutation = useMutation({
+    mutationFn: async (userData: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify(userData),
       });
-
-      if (response.ok) {
-        await login(email, password);
-        router.push("/");
-      } else {
+      if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || "Signup failed");
       }
-    } catch (error) {
-      console.error("Signup error:", error);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["auth"], data.user);
+      router.push("/");
+    },
+    onError: (error) => {
       if (error instanceof Error) {
         setError(error.message);
       } else {
         setError("An unexpected error occurred");
       }
-    }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    signupMutation.mutate({ email, password, name });
   };
 
   return (
@@ -89,8 +98,9 @@ export function SignupForm() {
       <button
         type="submit"
         className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        disabled={signupMutation.isPending}
       >
-        Sign Up
+        {signupMutation.isPending ? "Signing up..." : "Sign Up"}
       </button>
     </form>
   );

@@ -1,25 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login, updateUser } = useAuth();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Login failed");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["auth"], data.user);
+      router.push("/");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      await login(email, password);
-      router.push("/");
-    } catch (error) {
-      setError("Login failed. Please check your credentials and try again.");
-    }
+    loginMutation.mutate({ email, password });
   };
 
   return (
@@ -56,8 +79,9 @@ export function LoginForm() {
       <button
         type="submit"
         className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        disabled={loginMutation.isPending}
       >
-        Log In
+        {loginMutation.isPending ? "Logging in..." : "Log In"}
       </button>
     </form>
   );

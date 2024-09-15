@@ -1,84 +1,80 @@
-instructions:
-Guide me step-by-step to create a full-stack boilerplate application using the following requirements
+# AI Development Assistant Specification
 
-stack:
+## Project Overview
+
+You are tasked with developing a Next.js 14 application that implements secure user authentication using JWT (JSON Web Tokens) stored in HttpOnly cookies. The application will utilize Zustand for global state management and TanStack React Query for efficient data fetching and caching. The application should follow best practices for security, performance, and maintainability, with Role-Based Access Control (RBAC) for managing user roles. User data will be managed using Prisma with PostgreSQL as the database.
+
+## Stack
 
 - Next.js app router and server actions
 - Zod for schema definition and validation
 - next-safe-action for type-safe data fetching
 - Prisma ORM
 - Neon DB
-- Custom JWT authentication, do not use next-auth
-- ShadCN, use npx shadcn@latest, not npx shadcn-ui@latest
+- Custom JWT authentication
+- ShadCN UI Components
 
-features:
+## Key Features
 
-- authentication_methods:
-  - OAuth with Google
-  - Email/password authentication
-- role_based_access_control:
-  - Implement roles for guest, user, and administrator
-- ui_components:
-  - Use ShadCN for UI components
-  - Create a public page for guest users with a basic layout with a sticky header, navbar, and footer
-  - Include an admin-protected section for application setup
-- data_handling:
-  - Ensure all data handling is type-safe using Zod and next-safe-action
-  - Implement server actions for database interactions without creating separate API endpoints
-- error_handling:
-  - Design a global error handling strategy that is type-safe and follows best practices
-- testing:
-  - Implement unit, integration, and end-to-end tests
-- environment_variables:
-  - Use Zod for schema definition and validation to ensure that environment variables are consistently defined and typed
-- deployment:
+### Authentication:
 
-  - Ensure the application can be deployed on Vercel, AWS, or Cloudflare
+- Implement user authentication with JWT.
+- Use next-safe-action to create secure server actions for login, logout, and token validation.
+- Store JWT in HttpOnly cookies to prevent XSS attacks.
+- Implement refresh tokens to maintain user sessions without requiring frequent logins.
+- Protect sensitive routes by verifying JWT on the server.
 
-general_instructions:
+### Role-Based Access Control (RBAC):
 
-- When you say "Let's update the <file> file:", do not show the content of the file, just the file path
-- When you say "let's update the <file>", do not show the content of the file, just the file path
-- When you say "Add the following content to <file>", show the bash command to open the file and then the content to add
-- When showing mkdir commands always quote the entire path, e.g: mkdir -p "app/(auth)/signup"
-- When showing touch commands always quote the entire path, e.g: touch "app/(auth)/signup/page.tsx"
-- When you say "Create a new file <file>", show the bash command to create the folder quoting the entire path, e.g: mkdir -p "app/(auth)/signup". Then the command to create the file, e.g: touch app/(auth)/signup/page.tsx. And finally, the command to open the file e.g: cursor app/(auth)/signup/page.tsx
-- Treat next.config.mjs file as an ES module when adding content to it
+- Use the Role enum defined in the Prisma schema as the single source of truth for user roles.
+- Implement middleware to enforce role-based access control for server actions and routes.
+- Ensure that users can only access resources and perform actions permitted by their assigned roles.
 
-detailed_steps:
+### Homepage and Dashboard Navigation:
 
-- Run a command to create a .nvmrc file with the following content:
-  - lts/\*
-- Initialize the Next.js Project with ShadCN with the following command:
-  - npx shadcn@latest init -d
-- Run a command to move the my-app folder to the root of the project
-- Install necessary dependencies for:
-  - Prisma
-  - JWT
-  - bcrypt
-  - Zod
-  - next-safe-action
-- Set Up Prisma with Neon DB:
-  - Configure the Prisma schema to include User and Role models
-  - Set up the connection to Neon DB and run migrations
-- Implement Custom Authentication Logic:
-  - Create utility functions for signing and verifying JWTs
-  - Set up API routes for user registration, login, and logout
-  - Implement OAuth with Google and magic link functionality
-- Implement RBAC:
-  - Create middleware to protect routes based on user roles
-  - Ensure that the admin section is accessible only to users with the administrator role
-- Set Up Global Error Handling:
-  - Create a custom error handler that captures and formats errors consistently
-- Manage Environment Variables:
-  - Use Zod to define and validate environment variables in the application
-- Create UI Components:
-  - Use ShadCN blocks for authentication forms and layout
-  - Implement a basic layout with a sticky header, navbar, and footer
-  - Implement routes for the home page, login, signup, and admin dashboard
-- Deploy the Application:
-  - Prepare the application for deployment on Vercel, AWS, or Cloudflare
+- The homepage is accessible to guest users.
+- When accounts with the role USER successfully sign in or sign up, they are redirected to the homepage, and a welcome message is displayed.
+- When an account with the ADMINISTRATOR role logs in or signs up, it should be redirected to the dashboard.
 
-documentation:
+### Header Behavior:
 
-- Create a detailed README file that includes setup instructions, features, and usage guidelines
+- In the header, there are login and signup options for guests.
+- When a user is logged in, these links should change to display the name of the logged-in user, and a logout option should appear.
+
+### Authorization Middleware:
+
+- Implement middleware using next-safe-action to handle authorization checks based on user roles retrieved from the database.
+- Ensure that only authorized users can perform sensitive operations.
+
+### Form input validation:
+
+- Integrate Zod for schema-based validation of form inputs.
+
+### Global State Management with Zustand:
+
+- Use Zustand to manage global application state, including user authentication status and user profile data.
+- Create separate Zustand stores for different types of state (e.g., user profile, notifications).
+- Implement state persistence using Zustand middleware to retain state across page refreshes.
+
+### Data Fetching with TanStack React Query:
+
+- Use TanStack React Query to manage server state and cache user data.
+- Implement API calls for fetching user data and managing authentication states.
+- Use React Query's features like staleTime and refetchOnWindowFocus to ensure data freshness.
+
+### End-to-End Type Safety:
+
+- Use TypeScript to ensure type safety across the application, including server actions, form handling, and state management.
+- Define interfaces and types for user data, form inputs, and server responses to maintain consistency.
+
+## Best Practices
+
+- Ensure all sensitive operations are handled on the server side.
+- Validate JWT tokens on the server for every protected route using the middleware.
+- Handle errors gracefully in API calls and manage loading states in the UI.
+- Keep the Zustand store organized and avoid global stores by using context where necessary.
+- Regularly test the application for security vulnerabilities, especially concerning token management.
+
+## Deliverables
+
+1. Documentation outlining the architecture, code structure, and instructions for running the application.
